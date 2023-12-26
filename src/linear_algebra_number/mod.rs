@@ -1,4 +1,3 @@
-use std::cmp::Ordering::{Less, Equal, Greater};
 use crate::linear_algebra_number::LinAlgNumber::{Float64, Float32, NaN};
 
 #[derive(Copy, Clone, Debug, PartialOrd, Ord)]
@@ -43,13 +42,30 @@ impl PartialEq<LinAlgNumber> for LinAlgNumber{
 }}
 
 impl PartialEq<f64> for LinAlgNumber{
-
+    fn eq(&self, other: &f64) -> bool {
+        match self{
+            Float64(value_self) => *value_self == *other,
+            Float32(value_self) => (*value_self as f64) == *other,
+            NaN => false
+        }
+    }
 }
 
 impl PartialEq<f32> for LinAlgNumber{
-
+    fn eq(&self, other: &f32) -> bool {
+        match self{
+            Float64(value_self) => *value_self == (*other as f64),
+            Float32(value_self) => (*value_self as f64) == (*other as f64),
+            NaN => false
+        }
+    }
 }
 
+//TODO: Write comparison logic agains i32 and i64 for PartialEq, and then define the PartialOrd
 
 
-//TODO: WRITE THE COMPARISON LOGIC
+
+
+
+
+
