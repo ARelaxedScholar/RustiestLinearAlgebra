@@ -139,7 +139,45 @@ impl PartialEq<i64> for LinAlgNumber{
     }
 }
 
-//TODO: PartialOrd!
+
+impl PartialOrd<LinAlgNumber> for LinAlgNumber{
+    fn partial_cmp(&self, other: &LinAlgNumber) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            (Float64(value_self), Float64(value_other)) => Some(value_self.cmp(value_other)),
+            (Float32(value_self)), Float32(value_other) => Some((f64::from(value_self)).cmp(value_other)),
+            (Float64(value_self), Float32(value_other)) => Some(value_self.cmp(f64::from(value_other))),
+            (Float32(value_self), Float64(_)) => todo!(),
+            (NaN, _) => None,
+            (_, NaN) => None,
+        }
+    }
+}
+
+//TODO: PartialOrd! Also rework functions since just realized at no point I check that
+// the f64/f32 are not NaN.
+impl PartialOrd<f64> for LinAlgNumber{
+    fn partial_cmp(&self, other: &f64) -> Option<std::cmp::Ordering> {
+        todo!()
+    }
+}
+
+impl PartialOrd<f32> for LinAlgNumber{
+    fn partial_cmp(&self, other: &f32) -> Option<std::cmp::Ordering> {
+        todo!()
+    }
+}
+
+impl PartialOrd<i32> for LinAlgNumber{
+    fn partial_cmp(&self, other: &i32) -> Option<std::cmp::Ordering> {
+        todo!()
+    }
+}
+
+impl PartialOrd<i64> for LinAlgNumber{
+    fn partial_cmp(&self, other: &i64) -> Option<std::cmp::Ordering> {
+        todo!()
+    }
+}
 
 
 
