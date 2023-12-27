@@ -73,6 +73,66 @@ impl PartialEq<f32> for LinAlgNumber{
     }
 }
 
+impl PartialEq<i32> for LinAlgNumber{
+    fn eq(&self, other:&i32) -> bool {
+        match self {
+            Float64(value_self) => {
+                let relative_epsilon_64bit = value_self.abs() * 1e-12;
+                if value_self.fract().abs() < relative_epsilon_64bit{
+                    //Essentially an integer, we can try to compare
+                    value_self.trunc() == (f64::from(*other))
+                } else {
+                    false
+                }
+            },
+            Float32(value_self) => {
+                let relative_epsilon_32bit = value_self.abs() * 1e-6;
+                if value_self.fract().abs() < relative_epsilon_32bit {
+                    (f64::from(value_self.trunc())) == (f64::from(*other))
+                } else{
+                    false
+                }
+
+            },
+            NaN => false
+        }
+
+
+    }
+}
+
+impl PartialEq<i64> for LinAlgNumber{
+    fn eq(&self, other:&i64) -> bool{
+        match self{
+            Float64(value_self) => {
+                let relative_epsilon_64bit = value_self * 1e-12;
+                if value_self.fract().abs() < relative_epsilon_64bit {
+                    if !(&(*other as f64) > &MAX_EXACT_INT){
+                        (f64::from(value_self.trunc())) == (*other as f64)
+                    } else {
+                        false
+                    }
+                    
+                } else {
+                    false
+                }
+
+            },
+            Float32(value_self) => {
+                let relative_epsilon_32bit = value_self.abs() * 1e-6;
+                if value_self.fract().abs() < relative_epsilon_32bit{
+                    (f64::from(value_self.trunc())) == (f64::from(*other))
+                } else {
+                    false
+                }
+
+            },
+            NaN => false
+        }
+
+    }
+}
+
 //TODO: Write comparison logic agains i32 and i64 for PartialEq, and then define the PartialOrd
 
 
