@@ -43,7 +43,8 @@ impl From<i64> for LinAlgNumber{
 }
 //Impl Comparison traits
 impl Eq for LinAlgNumber{}
-//Partial Eqs
+
+//Partial Eq Gauntlet
 impl PartialEq<LinAlgNumber> for LinAlgNumber{ 
     fn eq(&self, other: &Self) -> bool {
        match (self, other) {
@@ -138,7 +139,7 @@ impl PartialEq<i64> for LinAlgNumber{
     }
 }
 
-//TODO: Write comparison logic agains i32 and i64 for PartialEq, and then define the PartialOrd
+//TODO: PartialOrd!
 
 
 
