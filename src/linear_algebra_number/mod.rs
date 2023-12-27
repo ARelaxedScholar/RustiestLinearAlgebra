@@ -24,6 +24,18 @@ impl From<i32> for LinAlgNumber{
         LinAlgNumber::Float64(f64::from(value))
     }
 }
+impl From<i64> for LinAlgNumber{
+    fn from(value: i64) -> Self {
+        if !((value as f64) > MAX_EXACT_INT) {
+            //Reasonably sure of no precision loss
+            LinAlgNumber::Float64(value as f64)
+        }
+        else {
+           panic!("{} is greater than biggest exact integer representable in f64.", value)
+        }
+        
+    }
+}
 //Impl Comparison traits
 impl Eq for LinAlgNumber{}
 //Partial Eqs
