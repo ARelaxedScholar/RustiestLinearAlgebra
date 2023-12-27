@@ -1,11 +1,15 @@
 use crate::linear_algebra_number::LinAlgNumber::{Float64, Float32, NaN};
 
-#[derive(Copy, Clone, Debug, PartialOrd, Ord)]
+const MAX_EXACT_INT: f64 = 2f64.powi(53);
+
+#[derive(Clone, Debug, PartialOrd, Ord)]
 pub enum LinAlgNumber{
     Float64(f64),
     Float32(f32),
-    NaN,
+    NaN
 }
+
+
 //From Gauntlet
 impl From<f64> for LinAlgNumber{
     fn from(value : f64) -> Self{
@@ -24,6 +28,7 @@ impl From<i32> for LinAlgNumber{
         LinAlgNumber::Float64(f64::from(value))
     }
 }
+
 impl From<i64> for LinAlgNumber{
     fn from(value: i64) -> Self {
         if !((value as f64) > MAX_EXACT_INT) {
