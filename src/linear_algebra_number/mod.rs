@@ -151,10 +151,10 @@ impl PartialEq<i64> for LinAlgNumber{
 impl PartialOrd<LinAlgNumber> for LinAlgNumber{
     fn partial_cmp(&self, other: &LinAlgNumber) -> Option<std::cmp::Ordering> {
         match (self, other) {
-            (Float64(value_self), Float64(value_other)) => Some(value_self.cmp(value_other)),
-            (Float32(value_self)), Float32(value_other) => Some((f64::from(value_self)).cmp(value_other)),
-            (Float64(value_self), Float32(value_other)) => Some(value_self.cmp(f64::from(value_other))),
-            (Float32(value_self), Float64(_)) => todo!(),
+            (Float64(value_self), Float64(value_other)) => value_self.partial_cmp(value_other),
+            (Float32(value_self), Float32(value_other)) => (f64::from(*value_self)).partial_cmp(&f64::from(*value_other)),
+            (Float64(value_self), Float32(value_other)) => value_self.partial_cmp(&f64::from(*value_other)),
+            (Float32(value_self), Float64(value_other)) => (f64::from(*value_self)).partial_cmp(value_other),
             (NaN, _) => None,
             (_, NaN) => None,
         }
