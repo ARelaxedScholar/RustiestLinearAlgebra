@@ -2,7 +2,7 @@ use crate::linear_algebra_number::LinAlgNumber::{Float64, Float32, NaN};
 
 const MAX_EXACT_INT: f64 = 2f64.powi(53);
 
-#[derive(Clone, Debug, PartialOrd, Ord)]
+#[derive(Clone, Debug)]
 pub enum LinAlgNumber{
     Float64(f64),
     Float32(f32),
@@ -13,13 +13,21 @@ pub enum LinAlgNumber{
 //From Gauntlet
 impl From<f64> for LinAlgNumber{
     fn from(value : f64) -> Self{
-        LinAlgNumber::Float64(value)
+        if !(value.is_nan()){
+            LinAlgNumber::Float64(value)
+        } else {
+            NaN
+        }  
     }
 }
 
 impl From<f32> for LinAlgNumber{
     fn from(value : f32) -> Self{
-        LinAlgNumber::Float32(value)
+        if !(value.is_nan()){
+            LinAlgNumber::Float32(value)
+        } else {
+            NaN
+        }  
     }
 }
 
