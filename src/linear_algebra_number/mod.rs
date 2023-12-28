@@ -1,7 +1,8 @@
 use crate::linear_algebra_number::LinAlgNumber::{Float32, Float64, NaN};
+use std::cmp::Ordering::{Less, Greater};
 
 //Class Stuff
-const MAX_EXACT_INT: f64 = 2f64.powi(53);
+const MAX_EXACT_INT: f64 = 9007199254740992.0; //2f64.powi(53);
 
 fn perfectly_representable_as_f64(some_integer: &i64) -> bool{
     if (*some_integer as f64) > MAX_EXACT_INT{
@@ -163,7 +164,6 @@ impl PartialEq<i64> for LinAlgNumber {
                 }
             }
             Float32(value_self) => {
-                let relative_epsilon_32bit = value_self.abs() * 1e-6;
                 if perfectly_representable_as_f64(other) {
                     (f64::from(value_self.trunc())) == (*other as f64)
                 } else {
@@ -232,6 +232,23 @@ impl PartialOrd<i64> for LinAlgNumber {
             Float64(value_self) => value_self.partial_cmp(&(*other as f64)),
             Float32(value_self) => (f64::from(*value_self)).partial_cmp(&(*other as f64)),
             NaN => None,
+        }
+    }
+}
+
+//ORD!
+impl Ord for LinAlgNumber{
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other){
+            //Since we ensure that Float64/Float32 do not contain NaN.
+            //Comparison between these types should never fail. So we unwrap for brevity
+            (NaN, _) => Greater,
+            (_, NaN) => Less,
+            (Float64(_), Float64(_)) => self.partial_cmp(other).unwrap(),
+            (Float64(_), Float32(_)) => self.partial_cmp(other).unwrap(),
+            (Float32(_), Float64(_)) => self.partial_cmp(other).unwrap(),
+            (Float32(_), Float32(_)) => self.partial_cmp(other).unwrap(),
+            
         }
     }
 }
