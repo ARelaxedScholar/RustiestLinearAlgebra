@@ -1,4 +1,5 @@
 use crate::linear_algebra_number::LinAlgNumber::{Float32, Float64, NaN};
+use crate::linear_algebra_number::SafeLinAlgNumber::SafeConversionIsImpossible;
 use std::cmp::Ordering::{Less, Greater};
 
 //Class Stuff
@@ -19,6 +20,13 @@ pub enum LinAlgNumber {
     Float32(f32),
     NaN,
 }
+
+//Special type for specifically for handling i64
+pub enum SafeLinAlgNumber{
+    Safe(LinAlgNumber), //Will only ever be Float64
+    SafeConversionIsImpossible
+}
+
 
 impl LinAlgNumber {
     fn is_basically_an_integer(&self) -> bool {
@@ -71,17 +79,19 @@ impl From<i32> for LinAlgNumber {
     }
 }
 
-impl From<i64> for LinAlgNumber {
+impl From<i64> for SafeLinAlgNumber {
     fn from(value: i64) -> Self {
-        if !((value as f64) > MAX_EXACT_INT) {
-            //Reasonably sure of no precision loss
-            LinAlgNumber::Float64(value as f64)
+        if perfectly_representable_as_f64(&value) {
+            SafeLinAlgNumber::from(LinAlgNumber::Float64(value as f64))
         } else {
-            panic!(
-                "{} is greater than biggest exact integer representable in f64.",
-                value
-            )
+            SafeConversionIsImpossible
         }
+    }
+}
+
+impl From<LinAlgNumber> for SafeLinAlgNumber{
+    fn from(value: LinAlgNumber) -> Self{
+        SafeLinAlgNumber::Safe(value)
     }
 }
 //Impl Comparison traits
@@ -149,7 +159,7 @@ impl PartialEq<i32> for LinAlgNumber {
     }
 }
 
-impl PartialEq<i64> for LinAlgNumber {
+impl PartialEq<i64> for LinAlgNumber{
     fn eq(&self, other: &i64) -> bool {
         match self {
             Float64(value_self) => {
