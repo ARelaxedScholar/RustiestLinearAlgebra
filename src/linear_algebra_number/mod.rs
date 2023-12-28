@@ -219,8 +219,8 @@ impl PartialOrd<f32> for LinAlgNumber {
 impl PartialOrd<i32> for LinAlgNumber {
     fn partial_cmp(&self, other: &i32) -> Option<std::cmp::Ordering> {
         match self {
-            Float64(value_self) => todo!(),
-            Float32(value_self) => todo!(),
+            Float64(value_self) => value_self.partial_cmp(&f64::from(*other)),
+            Float32(value_self) => (f64::from(*value_self)).partial_cmp(&f64::from(*other)),
             NaN => None,
         }
     }
@@ -228,6 +228,10 @@ impl PartialOrd<i32> for LinAlgNumber {
 
 impl PartialOrd<i64> for LinAlgNumber {
     fn partial_cmp(&self, other: &i64) -> Option<std::cmp::Ordering> {
-        todo!()
+        match self {
+            Float64(value_self) => value_self.partial_cmp(&(*other as f64)),
+            Float32(value_self) => (f64::from(*value_self)).partial_cmp(&(*other as f64)),
+            NaN => None,
+        }
     }
 }
