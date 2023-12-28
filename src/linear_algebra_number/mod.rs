@@ -6,14 +6,14 @@ use std::cmp::Ordering::{Less, Greater};
 const MAX_EXACT_INT: f64 = 9007199254740992.0; //2f64.powi(53);
 
 fn perfectly_representable_as_f64(some_integer: &i64) -> bool{
-    if (*some_integer as f64) > MAX_EXACT_INT{
-        false
-    } else {
-        true
-    }
+    !((*some_integer as f64) > MAX_EXACT_INT)   
 }
 
-
+/// Represents the numbers that will be used in the library.
+/// Implements the Ord and Eq trait so can be used in data structures that require them.
+/// The above is the reason why this enum was created.
+/// The NaN variant is handled explicitly to guarantee nothing illegal happened.
+/// If a value is stored in a Float variant, then it is a proper number.
 #[derive(Clone, Debug)]
 pub enum LinAlgNumber {
     Float64(f64),
@@ -21,7 +21,11 @@ pub enum LinAlgNumber {
     NaN,
 }
 
-//Special type for specifically for handling i64
+/// Special enum created to handle the From<i64> case.
+/// While f64 can store greater values than i64 can, after a certain point (2^53)
+/// the f64 type becomes unable to store the integer exactly due to the space required
+/// to contain the exponant and the mantissa.
+/// Long story short, this is a type made to be used in conjunction with LinAlgNumber.
 pub enum SafeLinAlgNumber{
     Safe(LinAlgNumber), //Will only ever be Float64
     SafeConversionIsImpossible
@@ -29,23 +33,35 @@ pub enum SafeLinAlgNumber{
 
 
 impl LinAlgNumber {
-    fn is_basically_an_integer(&self) -> bool {
+    /// A method to check if a float value can be considered an integer.
+    /// Its name can be a bit misleading since all it does is check against a threshold
+    /// If precision is important, please use the f64 variant.
+    /// 
+    /// F64 : value * 1*10^(-12)
+    /// F32 : value * 1*10^(-6)
+    /// NaN : Not a Number (NaN) cannot be an integer
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
+    /// 
+    /// let var1 : LinAlgNumber = LinAlgNumber::from(64.000001 as f32);
+    /// let var2 : LinAlgNumber = LinAlgNumber::from(64.00000001);
+    /// assert_eq!(var1.is_basically_an_integer(), true);  threshold : 0.000064 fract_abs : 0.0000001 : fract_abs < threshold => true
+    /// assert_eq!(var2.is_basically_an_integer(), false); threshold : 0.000000000064 fract_abs: 00000001  : fract_abs > threshold => false
+    /// ```
+    pub fn is_basically_an_integer(&self) -> bool {
         match self {
             Float64(value_self) => {
                 let relative_epsilon_64bit = value_self.abs() * 1e-12;
-                if value_self.fract().abs() < relative_epsilon_64bit {
-                    true
-                } else {
-                    false
-                }
+                println!("threshold : {}, fractional value: {}", relative_epsilon_64bit, value_self.fract().abs());
+                value_self.fract().abs() < relative_epsilon_64bit
             }
             Float32(value_self) => {
                 let relative_epsilon_32bit = value_self.abs() * 1e-6;
-                if value_self.fract().abs() < relative_epsilon_32bit {
-                    true
-                } else {
-                    false
-                }
+                println!("threshold : {}, fractional value: {}", relative_epsilon_32bit, value_self.fract().abs());
+                value_self.fract().abs() < relative_epsilon_32bit 
             }
             NaN => false,
         }
@@ -94,6 +110,7 @@ impl From<LinAlgNumber> for SafeLinAlgNumber{
         SafeLinAlgNumber::Safe(value)
     }
 }
+
 //Impl Comparison traits
 impl Eq for LinAlgNumber {}
 
@@ -204,8 +221,6 @@ impl PartialOrd<LinAlgNumber> for LinAlgNumber {
     }
 }
 
-//TODO: PartialOrd! Also rework functions since just realized at no point I check that
-// the f64/f32 are not NaN.
 impl PartialOrd<f64> for LinAlgNumber {
     fn partial_cmp(&self, other: &f64) -> Option<std::cmp::Ordering> {
         match self {
