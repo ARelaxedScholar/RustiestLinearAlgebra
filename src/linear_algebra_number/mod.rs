@@ -48,8 +48,8 @@ impl LinAlgNumber {
     /// 
     /// let var1 : LinAlgNumber = LinAlgNumber::from(64.000001 as f32);
     /// let var2 : LinAlgNumber = LinAlgNumber::from(64.00000001);
-    /// assert_eq!(var1.is_basically_an_integer(), true);  threshold : 0.000064 fract_abs : 0.0000001 : fract_abs < threshold => true
-    /// assert_eq!(var2.is_basically_an_integer(), false); threshold : 0.000000000064 fract_abs: 00000001  : fract_abs > threshold => false
+    /// assert_eq!(var1.is_basically_an_integer(), true);  //threshold : 0.000064 fract_abs : 0.0000001 : fract_abs < threshold => true
+    /// assert_eq!(var2.is_basically_an_integer(), false); //threshold : 0.000000000064 fract_abs: 00000001  : fract_abs > threshold => false
     /// ```
     pub fn is_basically_an_integer(&self) -> bool {
         match self {
@@ -66,9 +66,61 @@ impl LinAlgNumber {
             NaN => false,
         }
     }
+
+    /// A method to check if the stored variant is a NaN.
+    /// It is needed since NaN != NaN. 
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
+    /// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber::{Float64, Float32, NaN};
+    /// 
+    /// let var1 : LinAlgNumber = Float64(5.0);
+    /// let var2 : LinAlgNumber = Float32(1.11);
+    /// let var3 : LinAlgNumber = NaN;
+    /// 
+    /// assert_eq!(var1.is_nan(), false);
+    /// assert_eq!(var2.is_nan(), false);
+    /// assert_eq!(var3.is_nan(), true);
+    /// 
+    /// ```
+
+    pub fn is_nan(&self) -> bool {
+        match self{
+            NaN => true,
+            _ => false
+        }
+    }
 }
 
 //From Gauntlet
+/// A method to transform f64 into the wrapper type LinAlgNumber
+/// It will always yield a Float64 variant (which is the favored option.)
+/// Since we use the variant NaN to represent Not A Number values there's a guarantee that
+/// once a float enters the system, if it was valid during entry it will remain valid while in.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber::{Float64, NaN};
+/// 
+/// let var1 : LinAlgNumber = LinAlgNumber::from(7.77);
+/// let var2 : LinAlgNumber = LinAlgNumber::from(4e-78);
+/// let var3 : LinAlgNumber = LinAlgNumber::from(7e100);
+/// let var4 : LinAlgNumber = LinAlgNumber::from((f64::from(-1)).sqrt()); 
+/// let var5 : LinAlgNumber = LinAlgNumber::from(0.0/0.0);
+/// 
+/// assert_eq!(var1, Float64(7.77));
+/// assert_eq!(var2, Float64(4e-78));
+/// assert_eq!(var3, Float64(7e100));
+/// assert_eq!(var1.is_nan(), false);
+/// assert_eq!(var2.is_nan(), false);
+/// assert_eq!(var3.is_nan(), false);
+/// assert_eq!(var4.is_nan(), true);
+/// assert_eq!(var5.is_nan(), true);
+/// ```
 impl From<f64> for LinAlgNumber {
     fn from(value: f64) -> Self {
         if !(value.is_nan()) {
@@ -277,3 +329,4 @@ impl Ord for LinAlgNumber{
         }
     }
 }
+
