@@ -9,10 +9,10 @@ use std::cmp::Ordering::{Less, Greater};
 // TODO: Finish documentation, write the inner.
 
 //Class Stuff
-const MAX_EXACT_INT: f64 = 9007199254740992.0; //2f64.powi(53);
+const MAX_EXACT_INT: i64 = 9007199254740991; //2f64.powi(53)-1;
 
 fn perfectly_representable_as_f64(some_integer: &i64) -> bool{
-    !((*some_integer as f64) > MAX_EXACT_INT)   
+    !((*some_integer) > MAX_EXACT_INT)   
 }
 
 /// Represents the numbers that will be used in the library.
