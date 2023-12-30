@@ -2,6 +2,12 @@ use crate::linear_algebra_number::LinAlgNumber::{Float32, Float64, NaN};
 use crate::linear_algebra_number::SafeLinAlgNumber::SafeConversionIsImpossible;
 use std::cmp::Ordering::{Less, Greater};
 
+// For my own sanity, and because the point of this is to do machine learning at some point
+// and not just to labor in rust traits implementation. I will simply implement a to_inner method
+// and make use of the inherent arithmetic capabilities of floats.
+// I will learn about macros later.
+// TODO: Finish documentation, write the inner.
+
 //Class Stuff
 const MAX_EXACT_INT: f64 = 9007199254740992.0; //2f64.powi(53);
 
@@ -46,8 +52,8 @@ impl LinAlgNumber {
     /// ```
     /// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
     /// 
-    /// let var1 : LinAlgNumber = LinAlgNumber::from(64.000001 as f32);
-    /// let var2 : LinAlgNumber = LinAlgNumber::from(64.00000001);
+    /// let var1 : LinAlgNumber = LinAlgNumber::Float32(64.000001 as f32);
+    /// let var2 : LinAlgNumber = LinAlgNumber::Float64(64.00000001);
     /// assert_eq!(var1.is_basically_an_integer(), true);  //threshold : 0.000064 fract_abs : 0.0000001 : fract_abs < threshold => true
     /// assert_eq!(var2.is_basically_an_integer(), false); //threshold : 0.000000000064 fract_abs: 00000001  : fract_abs > threshold => false
     /// ```
