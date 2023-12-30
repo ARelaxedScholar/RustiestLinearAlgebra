@@ -12,7 +12,7 @@ use std::cmp::Ordering::{Less, Greater};
 const MAX_EXACT_INT: i64 = 9007199254740991; //2f64.powi(53)-1;
 
 fn perfectly_representable_as_f64(some_integer: &i64) -> bool{
-    !(((*some_integer).abs()) > MAX_EXACT_INT)   
+    !(((*some_integer).abs()) > MAX_EXACT_INT)   // The max is also the minimum, since f64 in IEEE754 is signed magnitude.
 }
 
 /// Represents the numbers that will be used in the library.
