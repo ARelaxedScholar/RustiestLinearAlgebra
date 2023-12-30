@@ -6,7 +6,7 @@ use std::cmp::Ordering::{Less, Greater};
 // and not just to labor in rust traits implementation. I will simply implement a to_inner method
 // and make use of the inherent arithmetic capabilities of floats.
 // I will learn about macros later.
-// TODO: Finish documentation, write the inner.
+// TODO: Write documentation for the comparison logic, write the inner.
 
 //Class Stuff
 const MAX_EXACT_INT: i64 = 9007199254740991; //2f64.powi(53)-1;
