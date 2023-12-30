@@ -32,6 +32,7 @@ pub enum LinAlgNumber {
 /// the f64 type becomes unable to store the integer exactly due to the space required
 /// to contain the exponant and the mantissa.
 /// Long story short, this is a type made to be used in conjunction with LinAlgNumber.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SafeLinAlgNumber{
     Safe(LinAlgNumber), //Will only ever be Float64
     SafeConversionIsImpossible
