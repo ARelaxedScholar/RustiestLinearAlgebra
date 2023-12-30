@@ -138,6 +138,27 @@ impl From<f64> for LinAlgNumber {
     }
 }
 
+
+/// A method to transfomr f32 into the wrapper type.
+/// Implemented for completeness but I wouldn't recommend using it for precision reasons.
+/// The expected behavior is identical to Float64. 
+/// This is the from that is used when one explicitly passes a F32 to the from method.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
+/// 
+/// let var1 : LinAlgNumber = LinAlgNumber::from(34.0); // passing a regular f64
+/// let var2 : LinAlgNumber = LinAlgNumber::from(34.0 as f32);
+/// let var3 : LinAlgNumber = LinAlgNumber::from(f32::from(-34.0).sqrt()); //Taking square root of negative.
+/// 
+/// assert_eq!(var1, LinAlgNumber::Float64(34.0));
+/// assert_eq!(var2, LinAlgNumber::Float32(34.0));
+/// assert_eq!(var1.is_nan(), false);
+/// assert_eq!(var2.is_nan(), false);
+/// assert_eq!(var3.is_nan(), true);
+/// ``` 
 impl From<f32> for LinAlgNumber {
     fn from(value: f32) -> Self {
         if !(value.is_nan()) {
@@ -148,12 +169,66 @@ impl From<f32> for LinAlgNumber {
     }
 }
 
+/// This is a method to transform an i32 into the wrapper type Float64 (always Float64).
+/// This method is here as Quality of Life feature, since all the comparisons and operations are done using float numbers.
+/// This is merely there so that a user can create new LinAlgNumber instances without having to write the number as a float literal.
+/// 
+/// For i32 doing so is as simple as casting the number to f64 and storing that in the enum.
+/// This is possible since the range of values of i32 is much smaller than the range representable exactly by a f64.
+/// 
+/// # Examples
+/// ```
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber;
+/// 
+/// let var1 : LinAlgNumber = LinAlgNumber::from(459877902); //in rust, by default, integers are i32 if not otherwise specified. 
+/// let var2 : LinAlgNumber = LinAlgNumber::from(0);
+/// let var3 : LinAlgNumber = LinAlgNumber::from(-459877902);
+/// 
+/// assert_eq!(var1, LinAlgNumber::Float64(459877902.0));
+/// assert_eq!(var2, LinAlgNumber::Float64(0.0));
+/// assert_eq!(var3, LinAlgNumber::Float64(-459877902.0));
+/// 
+/// ```
 impl From<i32> for LinAlgNumber {
     fn from(value: i32) -> Self {
         LinAlgNumber::Float64(f64::from(value))
     }
 }
 
+/// This is a method to transform an i64 into the wrapper type.
+/// Since as opposed to i32, i64 **can** exhaust the range of **exactly** representable numbers in f64
+/// and because I am not brave enough to implement method for f128. 
+/// There is a risk of precision loss each time we convert such a number.
+/// 
+/// As a result, we introduce a new enum SafeLinAlgNumber which serves as a homebrewed-highly-specified Result enum.
+/// It yields either:
+/// - a Safe variant containing a Float64 variant of LinAlgNumber,
+/// - SafeConversionImpossible variant for when the number is too big to be represented exactly.
+/// 
+/// This offers the user some discretion with how they intend to deal with failure of conversion.
+/// 
+/// # Examples
+/// ```
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber::Float64;
+/// use rustiest_linear_algebra::linear_algebra_number::SafeLinAlgNumber;
+/// use rustiest_linear_algebra::linear_algebra_number::SafeLinAlgNumber::{Safe, SafeConversionIsImpossible};
+/// 
+/// let var1 : SafeLinAlgNumber = SafeLinAlgNumber::from(32 as i64);
+/// let var2 : SafeLinAlgNumber = SafeLinAlgNumber::from(0 as i64);
+/// let var3 : SafeLinAlgNumber = SafeLinAlgNumber::from(-32 as i64);
+/// let var4 : SafeLinAlgNumber = SafeLinAlgNumber::from(9007199254740992); //Max int representable in f64 + 1
+/// let var5 : SafeLinAlgNumber = SafeLinAlgNumber::from(9007199254740991);
+/// let var6 : SafeLinAlgNumber = SafeLinAlgNumber::from(-9007199254740991);
+/// let var7 : SafeLinAlgNumber = SafeLinAlgNumber::from(-9007199254740992); //Yay 7
+/// 
+/// assert_eq!(var1, Safe(Float64(32.0)));
+/// assert_eq!(var2, Safe(Float64(0.0)));
+/// assert_eq!(var3, Safe(Float64(-32.0)));
+/// assert_eq!(var4, SafeConversionIsImpossible);
+/// assert_eq!(var5, Safe(Float64(9007199254740991.0)));
+/// assert_eq!(var6, Safe(Float64(-9007199254740991.0)));
+/// assert_eq!(var7, SafeConversionIsImpossible);
+///  ```
 impl From<i64> for SafeLinAlgNumber {
     fn from(value: i64) -> Self {
         if perfectly_representable_as_f64(&value) {
@@ -260,6 +335,7 @@ impl PartialEq<i64> for LinAlgNumber{
         }
     }
 }
+
 
 impl PartialOrd<LinAlgNumber> for LinAlgNumber {
     fn partial_cmp(&self, other: &LinAlgNumber) -> Option<std::cmp::Ordering> {
