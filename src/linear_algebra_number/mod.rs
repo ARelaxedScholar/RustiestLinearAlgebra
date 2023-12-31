@@ -245,21 +245,50 @@ impl From<i64> for SafeLinAlgNumber {
 impl Eq for LinAlgNumber {}
 
 //Partial Eq Gauntlet
+/// This method takes care of comparing variants LinAlgNumber.
+/// We take the decision to only allow comparison between identical types due to precision.
+/// While at first this was implemented with casting from f32 to f64.
+/// Further reflection lead to the realization that due to their nature, precision would be different.
+/// If ones judges that the f64 precision is required.
+/// Then it is fair to assume that 3.000000000 and 3.000000000000000000 while to us mortals the same thing,
+/// has a different meaning. 
+/// 
+/// As such for precision purposes, and to not encourage weird behavior, comparison between different variants will 
+/// always yield false.
+/// 
+/// It is expected that the user will pick one variant and stick to it.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use rustiest_linear_algebra::linear_algebra_number::LinAlgNumber::{Float64, Float32, NaN};
+/// 
+/// let var1 : bool = Float64(42.0) == Float64(42.0); //True
+/// let var2 : bool = Float64(69.0) == Float64(-69.0); //False
+/// let var3 : bool = Float32(f32::from(0.0)) == Float32(f32::from(0.0)); //True
+/// let var4 : bool = Float32(f32::from(-2.0)) == Float32(f32::from(2.0)); //False
+/// let var5 : bool = Float64(4.0) == Float32(4.0); //Everything else false, since we compare different variants.
+/// let var6 : bool = Float32(4.0) == Float64(4.0);
+/// let var7 : bool = Float64(-1.0) == NaN;
+/// let var8 : bool = NaN == Float32(f32::from(1.0));
+/// 
+/// assert!(var1);
+/// assert!(!var2);
+/// assert!(var3);
+/// assert!(!var4);
+/// assert!(!var5);
+/// assert!(!var6);
+/// assert!(!var7);
+/// assert!(!var8);
+/// ```
 impl PartialEq<LinAlgNumber> for LinAlgNumber {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             //Same type
             (Float64(value_self), Float64(value_other)) => value_self == value_other,
             (Float32(value_self), Float32(value_other)) => value_self == value_other,
-            //Different type
-            (Float64(value_self), Float32(value_other)) => {
-                (*value_self as f64) == (*value_other as f64)
-            }
-            (Float32(value_self), Float64(value_other)) => {
-                (*value_self as f64) == (*value_other as f64)
-            }
-            //Any NaN
-            (NaN, _) | (_, NaN) => false,
+            //Anything else
+            (_, _) => false
         }
     }
 }
