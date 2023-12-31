@@ -232,7 +232,7 @@ impl From<i32> for LinAlgNumber {
 impl From<i64> for SafeLinAlgNumber {
     fn from(value: i64) -> Self {
         if perfectly_representable_as_f64(&value) {
-            SafeLinAlgNumber::from(LinAlgNumber::Float64(value as f64))
+            SafeLinAlgNumber::Safe(LinAlgNumber::Float64(value as f64)) 
         } else {
             SafeConversionIsImpossible
         }
