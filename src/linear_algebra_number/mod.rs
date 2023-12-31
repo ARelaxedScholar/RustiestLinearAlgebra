@@ -35,7 +35,7 @@ pub enum LinAlgNumber {
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SafeLinAlgNumber{
     Safe(LinAlgNumber), //Will only ever be Float64
-    SafeConversionIsImpossible
+    SafeConversionIsImpossible(String)
 }
 
 
@@ -224,26 +224,22 @@ impl From<i32> for LinAlgNumber {
 /// assert_eq!(var1, Safe(Float64(32.0)));
 /// assert_eq!(var2, Safe(Float64(0.0)));
 /// assert_eq!(var3, Safe(Float64(-32.0)));
-/// assert_eq!(var4, SafeConversionIsImpossible);
+/// assert_eq!(var4, SafeConversionIsImpossible("This integer is too big to be represented as f64 without precision loss".to_owned()));
 /// assert_eq!(var5, Safe(Float64(9007199254740991.0)));
 /// assert_eq!(var6, Safe(Float64(-9007199254740991.0)));
-/// assert_eq!(var7, SafeConversionIsImpossible);
+/// assert_eq!(var7, SafeConversionIsImpossible("This integer is too big to be represented as f64 without precision loss".to_owned()));
 ///  ```
 impl From<i64> for SafeLinAlgNumber {
     fn from(value: i64) -> Self {
         if perfectly_representable_as_f64(&value) {
             SafeLinAlgNumber::Safe(LinAlgNumber::Float64(value as f64)) 
         } else {
-            SafeConversionIsImpossible
+            SafeConversionIsImpossible("This integer is too big to be represented as f64 without precision loss".to_owned())
         }
     }
 }
 
-impl From<LinAlgNumber> for SafeLinAlgNumber{
-    fn from(value: LinAlgNumber) -> Self{
-        SafeLinAlgNumber::Safe(value)
-    }
-}
+
 
 //Impl Comparison traits
 impl Eq for LinAlgNumber {}
